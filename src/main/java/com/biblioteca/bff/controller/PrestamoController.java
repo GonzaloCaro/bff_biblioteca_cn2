@@ -13,39 +13,39 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.biblioteca.bff.service.LambdaOrchestratorService;
+import com.biblioteca.bff.service.AzureFunctionOrchestratorService;
 
 @RestController
 @RequestMapping("/api/prestamos")
 @CrossOrigin(origins = "*")
 public class PrestamoController {
-    @Value("${aws.lambda.prestamos.url}")
-    private String lambdaUrl;
+    @Value("${azure.functions.prestamos.crud.url}")
+    private String functionUrl;
 
-    private final LambdaOrchestratorService orquestador;
+    private final AzureFunctionOrchestratorService orquestador;
 
-    public PrestamoController(LambdaOrchestratorService orquestador) {
+    public PrestamoController(AzureFunctionOrchestratorService orquestador) {
         this.orquestador = orquestador;
     }
 
     @GetMapping
     public ResponseEntity<String> obtenerPrestamos() {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.GET, null);
+        return orquestador.callFunction(functionUrl, HttpMethod.GET, null);
     }
 
     @PostMapping
     public ResponseEntity<String> crearPrestamo(@RequestBody Object prestamo) {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.POST, prestamo);
+        return orquestador.callFunction(functionUrl, HttpMethod.POST, prestamo);
     }
 
     @PutMapping
     public ResponseEntity<String> actualizarPrestamo(@RequestBody Object prestamo) {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.PUT, prestamo);
+        return orquestador.callFunction(functionUrl, HttpMethod.PUT, prestamo);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarPrestamo(@PathVariable String id) {
-        String urlConParametro = lambdaUrl + "?id=" + id;
-        return orquestador.callLambda(urlConParametro, HttpMethod.DELETE, null);
+        String urlConParametro = functionUrl + "?id=" + id;
+        return orquestador.callFunction(urlConParametro, HttpMethod.DELETE, null);
     }
 }

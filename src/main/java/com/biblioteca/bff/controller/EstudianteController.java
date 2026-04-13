@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.biblioteca.bff.service.LambdaOrchestratorService;
+import com.biblioteca.bff.service.AzureFunctionOrchestratorService;
 
 @RestController
 @RequestMapping("/api/estudiantes")
 @CrossOrigin(origins = "*")
 public class EstudianteController {
-    @Value("${aws.lambda.estudiantes.url}")
-    private String lambdaUrl;
+    @Value("${azure.functions.estudiantes.crud.url}")
+    private String functionUrl;
 
-    private final LambdaOrchestratorService orquestador;
+    private final AzureFunctionOrchestratorService orquestador;
 
-    public EstudianteController(LambdaOrchestratorService orquestador) {
+    public EstudianteController(AzureFunctionOrchestratorService orquestador) {
         this.orquestador = orquestador;
     }
 
     @GetMapping
     public ResponseEntity<String> obtenerEstudiantes() {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.GET, null);
+        return orquestador.callFunction(functionUrl, HttpMethod.GET, null);
     }
 
     @PostMapping
     public ResponseEntity<String> crearEstudiante(@RequestBody Object estudiante) {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.POST, estudiante);
+        return orquestador.callFunction(functionUrl, HttpMethod.POST, estudiante);
     }
 
     @PutMapping
     public ResponseEntity<String> actualizarEstudiante(@RequestBody Object estudiante) {
-        return orquestador.callLambda(lambdaUrl, HttpMethod.PUT, estudiante);
+        return orquestador.callFunction(functionUrl, HttpMethod.PUT, estudiante);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarEstudiante(@PathVariable String id) {
-        // El BFF orquesta: traduce la ruta REST al formato que la Lambda necesita
+        // El BFF orquesta: traduce la ruta REST al formato que la Function necesita
         // (?id=X)
-        String urlConParametro = lambdaUrl + "?id=" + id;
-        return orquestador.callLambda(urlConParametro, HttpMethod.DELETE, null);
+        String urlConParametro = functionUrl + "?id=" + id;
+        return orquestador.callFunction(urlConParametro, HttpMethod.DELETE, null);
     }
 }
